@@ -1,0 +1,20 @@
+{
+    "name": "mcarro/mapp-wrapper",
+    "description": "Mapp API PHP Wrapper",
+    "type": "class",
+    "require": {
+        "php": ">=5.5.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "license": "MIT",
+    "authors": [{
+        "name": "Marco Carrodano",
+        "email": "marco.carrodano@gmail.com"
+    }],
+    "autoload": {
+        "psr-4": {
+            "Mcarro\\": "src"
+        }
+    },
+    "minimum-stability": "dev"
+}
