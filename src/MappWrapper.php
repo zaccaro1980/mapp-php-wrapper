@@ -43,7 +43,7 @@ class MappWrapper
      *
      * @return void
      */
-    public function __construct(string $apiUrl, string $login, string $password)
+    public function __construct($apiUrl, $login, $password)
     {
         $this->client = new Client;
         $this->apiUrl = $apiUrl;
@@ -52,23 +52,14 @@ class MappWrapper
         $this->setMappDefaultParams();
     }
 
-    /**
-     * Function asyncSubmit
-     *
-     * @param string $topic The topic
-     *
-     * @return string Test
-     */
-    public function asyncSubmit(string $topic, $attributes = [])
+    public function __call($name, $attributes)
     {
-        $qs = [ 'topic' => $topic ];
-        return $this->makeApiRequest('/async/submit', 'POST', $qs, $attributes);
-    }
-
-    public function userGetByEmail($email)
-    {
-        $qs = [ 'email' => $email ];
-        return $this->makeApiRequest('/user/getByEmail', 'GET', $qs);
+        return $this->makeApiRequest(
+            $this->apiUrl . '/' . $this->translateMethodNameToMappEndpoint($name),
+            ($attributes[0]['method']) ?? 'GET',
+            ($attributes[0]['query']) ?? '',
+            ($attributes[0]['body']) ?? ''
+        );
     }
 
     private function setMappDefaultParams()
@@ -89,17 +80,24 @@ class MappWrapper
         ];
     }
 
-    private function makeApiRequest($endPoint, $method, $qs, $attributes = [])
+    private function makeApiRequest($endPoint, $method, $query = [], $body = [])
     {
         $params = $this->mappDefaultParams;
 
-        $params['json'] = $attributes;
-        $params['query'] = $qs;
+        $params['json'] = $body;
+        $params['query'] = $query;
 
         return $this->client->request(
             $method,
-            $this->apiUrl . $endPoint,
+            $endPoint,
             $params
         );
+    }
+
+    private function translateMethodNameToMappEndpoint($methodName)
+    {
+        return preg_replace_callback('/([A-Z])/', function ($word) {
+            return '/' . strtolower($word[1]);
+        }, $methodName, 1);
     }
 }
